@@ -30,23 +30,49 @@ export class EmailController {
       }
 
       const userId = req.user.id
-      const thread = sanitizeText(req.body.thread, MAX_THREAD_CHARS)
-      const userMessage = sanitizeText(req.body.user_message, MAX_DRAFT_CHARS)
 
-      if (!thread || !userMessage) {
-        return next(new AppError('thread and user_message are required', 400))
+      // Support multiple field name variations (thread_text, thread, threadValue)
+      const threadValue = req.body.thread_text || req.body.thread || req.body.threadValue
+      // user_message is optional - if not provided, AI will generate based on thread context
+      const userMessageValue =
+        req.body.user_message || req.body.userMessage || req.body.user_message_value || ''
+
+      // Validate required fields before sanitization
+      if (!threadValue || typeof threadValue !== 'string' || !threadValue.trim()) {
+        logger.warn('[email/draft] Missing or invalid thread', {
+          userId,
+          bodyKeys: Object.keys(req.body || {}),
+          threadType: typeof req.body.thread,
+          hasThread: !!req.body.thread,
+          hasThreadText: !!req.body.thread_text,
+          hasThreadValue: !!req.body.threadValue,
+        })
+        return next(
+          new AppError('thread_text (or thread) is required and must be a non-empty string', 400)
+        )
       }
+
+      const thread = sanitizeText(threadValue, MAX_THREAD_CHARS)
+      const userMessage = userMessageValue ? sanitizeText(userMessageValue, MAX_DRAFT_CHARS) : ''
 
       const profileContext = await profileUpdateService.getProfileContext(userId)
 
+      const searchQuery = userMessage ? `${thread} ${userMessage}` : thread
       const searchResults = await searchMemories({
         userId,
-        query: `${thread} ${userMessage}`,
+        query: searchQuery,
         limit: 5,
         contextOnly: true,
       })
 
       const context = searchResults.context || ''
+
+      const userMessageSection = userMessage
+        ? `User's intended message:
+${userMessage}
+
+`
+        : ''
 
       const prompt = `You are Cognia, an AI assistant helping draft email replies.
 
@@ -59,12 +85,9 @@ ${context}
 Email Thread:
 ${thread}
 
-User's intended message:
-${userMessage}
-
-Draft a professional email reply that:
+${userMessageSection}Draft a professional email reply that:
 1. Responds appropriately to the thread
-2. Incorporates the user's intended message naturally
+${userMessage ? "2. Incorporates the user's intended message naturally" : '2. Is contextually appropriate and helpful'}
 3. Reflects the user's communication style from their profile
 4. Uses relevant context from their memories when appropriate
 5. Is concise and professional
