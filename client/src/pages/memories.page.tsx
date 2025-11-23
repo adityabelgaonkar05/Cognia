@@ -1,18 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { MemoryService } from "@/services/memory.service"
-import { SearchService } from "@/services/search.service"
+import React, { useEffect, useState } from "react"
 import { requireAuthToken } from "@/utils/auth"
 import { useNavigate } from "react-router-dom"
 
-import type { Memory, MemorySearchResponse } from "@/types/memory"
-import { MemoryMesh3D } from "@/components/memories/MemoryMesh3D"
-import { SpotlightSearch } from "@/components/memories/SpotlightSearch"
+import { useMemories } from "@/hooks/use-memories"
+import { useMemoryMeshInteraction } from "@/hooks/use-memory-mesh-interaction"
+import { useSpotlightSearchState } from "@/hooks/use-spotlight-search-state"
+import { MemoryMesh3D } from "@/components/memories/mesh"
+import { SpotlightSearch } from "@/components/memories/spotlight-search"
 import { PageHeader } from "@/components/shared/PageHeader"
 
 export const Memories: React.FC = () => {
   const navigate = useNavigate()
-  const [memories, setMemories] = useState<Memory[]>([])
-  const [totalMemoryCount, setTotalMemoryCount] = useState<number>(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
@@ -25,212 +23,29 @@ export const Memories: React.FC = () => {
   }, [navigate])
 
   const similarityThreshold = 0.3
-  const [clickedNodeId, setClickedNodeId] = useState<string | null>(null)
-  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
-  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false)
-  const [spotlightSearchQuery, setSpotlightSearchQuery] = useState("")
-  const [spotlightSearchResults, setSpotlightSearchResults] =
-    useState<MemorySearchResponse | null>(null)
-  const [spotlightSearchAnswer, setSpotlightSearchAnswer] = useState<
-    string | null
-  >(null)
-  const [spotlightSearchCitations, setSpotlightSearchCitations] =
-    useState<Array<{
-      label: number
-      memory_id: string
-      title: string | null
-      url: string | null
-    }> | null>(null)
-  const [spotlightSearchJobId, setSpotlightSearchJobId] = useState<
-    string | null
-  >(null)
-  const [spotlightIsSearching, setSpotlightIsSearching] = useState(false)
-  const [spotlightEmbeddingOnly, setSpotlightEmbeddingOnly] = useState(true)
-  const spotlightAbortControllerRef = useRef<AbortController | null>(null)
-  const spotlightDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { memories, totalMemoryCount } = useMemories()
+  const {
+    isSpotlightOpen,
+    setIsSpotlightOpen,
+    spotlightSearchQuery,
+    setSpotlightSearchQuery,
+    spotlightSearchResults,
+    spotlightIsSearching,
+    spotlightSearchAnswer,
+    spotlightSearchCitations,
+    spotlightEmbeddingOnly,
+    setSpotlightEmbeddingOnly,
+    resetSpotlight,
+  } = useSpotlightSearchState()
 
-  const fetchMemories = useCallback(async () => {
-    try {
-      requireAuthToken()
-
-      const [memoriesData, totalCount] = await Promise.all([
-        MemoryService.getMemoriesWithTransactionDetails(10000),
-        MemoryService.getUserMemoryCount(),
-      ])
-
-      setMemories(memoriesData || [])
-      setTotalMemoryCount(totalCount || 0)
-    } catch (err) {
-      console.error("Error fetching memories:", err)
-    }
-  }, [])
-
-  const handleNodeClick = useCallback(
-    (memoryId: string) => {
-      const memoryInfo = memories.find((m) => m.id === memoryId)
-      if (memoryInfo) {
-        setSelectedMemory(memoryInfo)
-      }
-      setClickedNodeId(memoryId)
-    },
-    [memories]
-  )
-
-  // Spotlight search handler
-  const handleSpotlightSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
-        setSpotlightSearchResults(null)
-        setSpotlightSearchAnswer(null)
-        setSpotlightSearchCitations(null)
-        setSpotlightIsSearching(false)
-        return
-      }
-
-      // Cancel any existing search
-      if (spotlightAbortControllerRef.current) {
-        spotlightAbortControllerRef.current.abort()
-      }
-
-      spotlightAbortControllerRef.current = new AbortController()
-      setSpotlightIsSearching(true)
-
-      try {
-        const signal = spotlightAbortControllerRef.current?.signal
-        requireAuthToken()
-
-        const response = await MemoryService.searchMemories(
-          query,
-          {},
-          1,
-          50,
-          signal,
-          undefined,
-          spotlightEmbeddingOnly
-        )
-
-        if (signal?.aborted) return
-
-        setSpotlightSearchResults(response)
-        setSpotlightSearchAnswer(response.answer || null)
-        setSpotlightSearchCitations(response.citations || null)
-
-        if (response.job_id && !response.answer) {
-          setSpotlightSearchJobId(response.job_id)
-        } else {
-          setSpotlightSearchJobId(null)
-        }
-      } catch (err) {
-        if (err instanceof Error && err.name === "AbortError") {
-          return
-        }
-        // Error handling - could show error state here if needed
-      } finally {
-        if (!spotlightAbortControllerRef.current?.signal.aborted) {
-          setSpotlightIsSearching(false)
-        }
-      }
-    },
-    [spotlightEmbeddingOnly]
-  )
-
-  // Debounced spotlight search effect
-  useEffect(() => {
-    if (spotlightDebounceTimeoutRef.current) {
-      clearTimeout(spotlightDebounceTimeoutRef.current)
-    }
-
-    if (!spotlightSearchQuery.trim()) {
-      setSpotlightSearchResults(null)
-      setSpotlightSearchAnswer(null)
-      setSpotlightSearchCitations(null)
-      return
-    }
-
-    spotlightDebounceTimeoutRef.current = setTimeout(() => {
-      if (spotlightSearchQuery.trim()) {
-        handleSpotlightSearch(spotlightSearchQuery.trim())
-      }
-    }, 800)
-
-    return () => {
-      if (spotlightDebounceTimeoutRef.current) {
-        clearTimeout(spotlightDebounceTimeoutRef.current)
-      }
-    }
-  }, [spotlightSearchQuery, handleSpotlightSearch, spotlightEmbeddingOnly])
-
-  // Poll for async LLM answer in spotlight
-  useEffect(() => {
-    if (!spotlightSearchJobId || spotlightSearchAnswer) return
-    let cancelled = false
-    const interval = setInterval(async () => {
-      try {
-        const status = await SearchService.getJob(spotlightSearchJobId)
-        if (cancelled) return
-        if (status.status === "completed") {
-          if (status.answer) setSpotlightSearchAnswer(status.answer)
-          if (status.citations) setSpotlightSearchCitations(status.citations)
-          clearInterval(interval)
-          setSpotlightSearchJobId(null)
-        } else if (status.status === "failed") {
-          clearInterval(interval)
-          setSpotlightSearchJobId(null)
-        }
-      } catch {
-        // ignore polling errors
-      }
-    }, 1500)
-    return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
-  }, [spotlightSearchJobId, spotlightSearchAnswer])
-
-  useEffect(() => {
-    fetchMemories()
-  }, [fetchMemories])
-
-  // Keyboard shortcut to open spotlight (Cmd+K or Ctrl+K)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault()
-        setIsSpotlightOpen(true)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [])
-
-  // Cleanup effect to cancel any pending requests when component unmounts
-  useEffect(() => {
-    return () => {
-      if (spotlightAbortControllerRef.current) {
-        spotlightAbortControllerRef.current.abort()
-      }
-    }
-  }, [])
-
-  const highlightedMemoryIds = useMemo(
-    () => [
-      ...(clickedNodeId ? [clickedNodeId] : []),
-      ...(selectedMemory ? [selectedMemory.id] : []),
-    ],
-    [clickedNodeId, selectedMemory]
-  )
-
-  const memorySources = useMemo(
-    () => Object.fromEntries(memories.map((m) => [m.id, m.source || ""])),
-    [memories]
-  )
-
-  const memoryUrls = useMemo(
-    () => Object.fromEntries(memories.map((m) => [m.id, m.url || ""])),
-    [memories]
-  )
+  const {
+    clickedNodeId,
+    setSelectedMemory,
+    handleNodeClick,
+    highlightedMemoryIds,
+    memorySources,
+    memoryUrls,
+  } = useMemoryMeshInteraction(memories)
 
   if (!isAuthenticated) {
     return null
@@ -245,9 +60,7 @@ export const Memories: React.FC = () => {
     >
       <PageHeader pageName="Memories" />
 
-      {/* Main Content */}
       <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] relative">
-        {/* Left Panel - Memory Mesh */}
         <div
           className="flex-1 relative order-2 md:order-1 h-[50vh] md:h-auto md:min-h-[calc(100vh-3.5rem)] border-b md:border-b-0 bg-white"
           style={{
@@ -258,7 +71,6 @@ export const Memories: React.FC = () => {
             backgroundSize: "24px 24px",
           }}
         >
-          {/* 3D Memory Mesh Canvas */}
           <MemoryMesh3D
             className="w-full h-full"
             onNodeClick={handleNodeClick}
@@ -269,12 +81,10 @@ export const Memories: React.FC = () => {
             memoryUrls={memoryUrls}
           />
 
-          {/* Corner brand/label */}
           <div className="pointer-events-none absolute left-4 top-4 text-xs font-mono text-gray-500 uppercase tracking-wider">
             Memory Mesh
           </div>
 
-          {/* Legend Overlay (top-right) */}
           <div className="absolute right-4 top-4 z-20 max-w-[240px]">
             <div className="bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-900 p-4 shadow-lg">
               <div className="flex items-center justify-between mb-3">
@@ -285,9 +95,7 @@ export const Memories: React.FC = () => {
                   onClick={() => {
                     setIsSpotlightOpen(true)
                     setSpotlightSearchQuery("")
-                    setSpotlightSearchResults(null)
-                    setSpotlightSearchAnswer(null)
-                    setSpotlightSearchCitations(null)
+                    resetSpotlight()
                   }}
                   className="text-xs font-medium text-gray-700 hover:text-black px-2 py-1 border border-gray-300 hover:border-black hover:bg-black hover:text-white transition-all rounded-none"
                 >
@@ -369,15 +177,12 @@ export const Memories: React.FC = () => {
           onSearchQueryChange={setSpotlightSearchQuery}
           onSelectMemory={(memory) => {
             setSelectedMemory(memory)
-            setClickedNodeId(memory.id)
+            handleNodeClick(memory.id)
             setIsSpotlightOpen(false)
           }}
           onClose={() => {
             setIsSpotlightOpen(false)
-            setSpotlightSearchQuery("")
-            setSpotlightSearchResults(null)
-            setSpotlightSearchAnswer(null)
-            setSpotlightSearchCitations(null)
+            resetSpotlight()
           }}
         />
       </div>

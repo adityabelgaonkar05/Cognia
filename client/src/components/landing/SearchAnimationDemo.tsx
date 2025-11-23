@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react"
 
-import { mockMeshData } from "../../data/mock-mesh-data"
+import { mockMeshData } from "../../data/mock"
 import type { MemoryMesh } from "../../types/memory"
-import { MemoryMesh3DContainer } from "./MemoryMesh3D"
+import { MemoryMesh3DContainer } from "./mesh-preview"
 
 export const SearchAnimationDemo: React.FC<{ meshData?: MemoryMesh }> = ({
   meshData = mockMeshData,
@@ -63,7 +63,9 @@ export const SearchAnimationDemo: React.FC<{ meshData?: MemoryMesh }> = ({
                   console.log("Setting phase to searching")
                   setAnimationPhase("searching")
                   // Select nodes relevant to React authentication (first 8 nodes)
-                  const nodeIds = meshData.nodes.slice(0, 8).map((n) => n.id)
+                  const nodeIds = meshData.nodes
+                    .slice(0, 8)
+                    .map((n: { id: string }) => n.id)
                   console.log("Highlighting nodes:", nodeIds)
                   setHighlightedNodes(new Set(nodeIds))
                   setPulseIntensity(1)
@@ -196,7 +198,9 @@ export const SearchAnimationDemo: React.FC<{ meshData?: MemoryMesh }> = ({
               </div>
               <div className="space-y-0.5 sm:space-y-1">
                 {resultNodes.map((nodeId, index) => {
-                  const node = meshData.nodes.find((n) => n.id === nodeId)
+                  const node = meshData.nodes.find(
+                    (n: { id: string }) => n.id === nodeId
+                  )
                   if (!node) return null
                   return (
                     <div

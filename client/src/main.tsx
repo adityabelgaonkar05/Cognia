@@ -4,7 +4,7 @@ import App from "./App.tsx"
 
 import "./styles/index.css"
 
-import { ThemeProvider } from "./components/theme-provider"
+import { ThemeProvider } from "./components/providers"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ThemeProvider>
