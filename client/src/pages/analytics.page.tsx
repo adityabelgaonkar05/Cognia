@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react"
-import { getAnalytics, type AnalyticsData } from "@/services/analytics.service"
-import { requireAuthToken } from "@/utils/user-id.util"
+import {
+  AnalyticsService,
+  type AnalyticsData,
+} from "@/services/analytics.service"
+import { requireAuthToken } from "@/utils/auth"
 import { useNavigate } from "react-router-dom"
 
-import { PageHeader } from "@/components/PageHeader"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 export const Analytics: React.FC = () => {
   const navigate = useNavigate()
@@ -28,7 +31,7 @@ export const Analytics: React.FC = () => {
       try {
         setIsLoading(true)
         setError(null)
-        const analyticsData = await getAnalytics()
+        const analyticsData = await AnalyticsService.getAnalytics()
         setAnalytics(analyticsData)
       } catch (err) {
         const error = err as { message?: string }

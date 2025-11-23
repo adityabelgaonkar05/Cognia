@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { MemoryService } from "@/services/memory.service"
 import { SearchService } from "@/services/search.service"
-import { requireAuthToken } from "@/utils/user-id.util"
+import { requireAuthToken } from "@/utils/auth"
 import { useNavigate } from "react-router-dom"
 
-import type { Memory, MemorySearchResponse } from "@/types/memory.type"
-import { MemoryMesh3D } from "@/components/MemoryMesh3D"
-import { PageHeader } from "@/components/PageHeader"
-import { SpotlightSearch } from "@/components/SpotlightSearch"
+import type { Memory, MemorySearchResponse } from "@/types/memory"
+import { MemoryMesh3D } from "@/components/memories/MemoryMesh3D"
+import { SpotlightSearch } from "@/components/memories/SpotlightSearch"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 export const Memories: React.FC = () => {
   const navigate = useNavigate()
@@ -51,7 +51,6 @@ export const Memories: React.FC = () => {
 
   const fetchMemories = useCallback(async () => {
     try {
-      // Require authentication
       requireAuthToken()
 
       const [memoriesData, totalCount] = await Promise.all([

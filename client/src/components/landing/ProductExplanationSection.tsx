@@ -1,8 +1,8 @@
 import React from "react"
 
 import { mockMeshData } from "../../data/mock-mesh-data"
-import { Section } from "../sections"
 import { SearchAnimationDemo } from "./SearchAnimationDemo"
+import { Section } from "./Section"
 
 export const ProductExplanationSection: React.FC = () => {
   return (

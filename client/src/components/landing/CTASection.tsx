@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Section } from "../sections"
+import { Section } from "./Section"
 import { WaitlistForm } from "./WaitlistForm"
 
 export const CTASection: React.FC = () => {

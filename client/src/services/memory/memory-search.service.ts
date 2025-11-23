@@ -1,10 +1,7 @@
-import type {
-  MemorySearchResponse,
-  SearchFilters,
-} from "../../types/memory.type"
-import { getRequest, postRequest } from "../../utils/general-services.util"
-import { transformApiSearchResult } from "../../utils/memory-transform.util"
-import { requireAuthToken } from "../../utils/user-id.util"
+import type { MemorySearchResponse, SearchFilters } from "../../types/memory"
+import { requireAuthToken } from "../../utils/auth"
+import { getRequest, postRequest } from "../../utils/http"
+import { transformApiSearchResult } from "../../utils/transform"
 
 const baseUrl = "/memory"
 

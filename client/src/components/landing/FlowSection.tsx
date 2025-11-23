@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 
-import { Section } from "../sections"
+import { Section } from "./Section"
 
 interface FlowSectionProps {
   isVisible: boolean

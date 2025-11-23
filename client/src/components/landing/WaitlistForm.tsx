@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { doc, serverTimestamp, setDoc } from "firebase/firestore"
 
 import { db } from "../../lib/firebase"
-import { ConsoleButton } from "../sections"
+import { ConsoleButton } from "./ConsoleButton"
 
 export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
   const [email, setEmail] = useState("")

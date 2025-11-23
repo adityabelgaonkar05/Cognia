@@ -2,9 +2,9 @@ import type {
   MemoryCluster,
   MemoryMesh,
   MemoryWithRelations,
-} from "../../types/memory.type"
-import { getRequest, postRequest } from "../../utils/general-services.util"
-import { requireAuthToken } from "../../utils/user-id.util"
+} from "../../types/memory"
+import { requireAuthToken } from "../../utils/auth"
+import { getRequest, postRequest } from "../../utils/http"
 
 const baseUrl = "/memory"
 

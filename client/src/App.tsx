@@ -6,7 +6,7 @@ import { BrowserRouter as Router } from "react-router-dom"
 
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { Toaster } from "@/components/ui/sonner"
-import { CommandMenu } from "@/components/CommandMenu"
+import { CommandMenu } from "@/components/shared/CommandMenu"
 
 function AppContent() {
   useKeyboardShortcuts()

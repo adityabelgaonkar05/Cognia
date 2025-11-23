@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom"
 
 import { cn } from "@/lib/utils.lib"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { ConsoleButton } from "@/components/sections/ConsoleButton"
+import { ConsoleButton } from "@/components/landing/ConsoleButton"
 
-import axiosInstance from "../utils/axios-interceptor.util"
+import { axiosInstance } from "../utils/http"
 
 interface User {
   id: string

@@ -1,5 +1,5 @@
-import { getRequest } from "../../utils/general-services.util"
-import { requireAuthToken } from "../../utils/user-id.util"
+import { requireAuthToken } from "../../utils/auth"
+import { getRequest } from "../../utils/http"
 
 export async function getMemorySnapshots(
   page: number = 1,

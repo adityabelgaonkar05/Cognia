@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { PageHeader } from "@/components/PageHeader"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 const TableOfContents: React.FC<{ onSectionClick: (id: string) => void }> = ({
   onSectionClick,

@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react"
-import {
-  getProfile,
-  refreshProfile,
-  type UserProfile,
-} from "@/services/profile.service"
-import { requireAuthToken } from "@/utils/user-id.util"
+import { ProfileService, type UserProfile } from "@/services/profile.service"
+import { requireAuthToken } from "@/utils/auth"
 import { useNavigate } from "react-router-dom"
 
-import { PageHeader } from "@/components/PageHeader"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 import { EmptyState, ErrorMessage } from "../components/ui/loading-spinner"
 
@@ -35,7 +31,7 @@ export const Profile: React.FC = () => {
       try {
         setIsLoading(true)
         setError(null)
-        const data = await getProfile()
+        const data = await ProfileService.getProfile()
         setProfile(data)
       } catch (err) {
         const error = err as { message?: string }
@@ -53,7 +49,7 @@ export const Profile: React.FC = () => {
     try {
       setIsRefreshing(true)
       setError(null)
-      const data = await refreshProfile()
+      const data = await ProfileService.refreshProfile()
       setProfile(data)
     } catch (err) {
       const error = err as { code?: string; message?: string }

@@ -1,4 +1,4 @@
-import type { MemoryMesh } from "../types/memory.type"
+import type { MemoryMesh } from "../types/memory"
 
 export const mockMeshData: MemoryMesh = {
   nodes: [

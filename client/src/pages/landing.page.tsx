@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 
+import { Section } from "../components/landing"
 import { CTASection } from "../components/landing/CTASection"
 import { EmailDraftingDemo } from "../components/landing/EmailDraftingDemo"
 import { FlowSection } from "../components/landing/FlowSection"
@@ -7,7 +8,6 @@ import { Footer } from "../components/landing/Footer"
 import { Header } from "../components/landing/Header"
 import { HeroSection } from "../components/landing/HeroSection"
 import { ProductExplanationSection } from "../components/landing/ProductExplanationSection"
-import { Section } from "../components/sections"
 
 export const Landing = () => {
   const [isVisible, setIsVisible] = useState(false)

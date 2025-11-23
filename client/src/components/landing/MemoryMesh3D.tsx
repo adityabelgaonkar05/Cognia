@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib"
 
-import type { MemoryMesh, MemoryMeshEdge } from "../../types/memory.type"
+import type { MemoryMesh, MemoryMeshEdge } from "../../types/memory"
 
 const nodeColors = {
   manual: "#22c55e",

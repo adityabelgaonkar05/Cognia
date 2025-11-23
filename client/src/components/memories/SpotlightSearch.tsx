@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react"
 import { Search, X } from "lucide-react"
 
-import type { Memory, MemorySearchResponse } from "../types/memory.type"
+import type { Memory, MemorySearchResponse } from "../../types/memory"
 
 interface SpotlightSearchProps {
   isOpen: boolean

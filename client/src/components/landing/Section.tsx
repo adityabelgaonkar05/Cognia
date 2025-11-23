@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useScrollAnimation } from "../../hooks/use-scroll-animation.hook"
+import { useScrollAnimation } from "../../hooks/use-scroll-animation"
 
 interface SectionProps {
   children: React.ReactNode

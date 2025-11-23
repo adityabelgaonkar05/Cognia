@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 
 import { mockMeshData } from "../../data/mock-mesh-data"
-import type { MemoryMesh } from "../../types/memory.type"
+import type { MemoryMesh } from "../../types/memory"
 import { MemoryMesh3DContainer } from "./MemoryMesh3D"
 
 export const SearchAnimationDemo: React.FC<{ meshData?: MemoryMesh }> = ({
