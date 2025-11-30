@@ -14,6 +14,14 @@ export class ContentController {
         | string
         | undefined
       const metadata = req.body.metadata as Record<string, unknown> | undefined
+      const url =
+        typeof req.body.url === 'string' && req.body.url.trim() !== ''
+          ? req.body.url.trim()
+          : undefined
+      const title =
+        typeof req.body.title === 'string' && req.body.title.trim() !== ''
+          ? req.body.title.trim()
+          : undefined
 
       if (!raw_text || typeof raw_text !== 'string' || raw_text.trim().length === 0) {
         return next(new AppError('raw_text, content, or text is required', 400))
@@ -22,7 +30,11 @@ export class ContentController {
       const jobData: ContentJobData = {
         user_id,
         raw_text: raw_text.trim(),
-        metadata: metadata || {},
+        metadata: {
+          ...(metadata || {}),
+          ...(url ? { url } : {}),
+          ...(title ? { title } : {}),
+        },
       }
 
       await addContentJob(jobData)

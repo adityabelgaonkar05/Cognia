@@ -47,7 +47,14 @@ export const startContentWorker = () => {
       await ensureNotCancelled()
 
       const { user_id, raw_text, metadata } = job.data as ContentJobData
-      const baseUrl = typeof metadata?.url === 'string' ? (metadata.url as string) : undefined
+      const baseUrl =
+        typeof metadata?.url === 'string' && metadata.url.trim() !== ''
+          ? (metadata.url as string).trim()
+          : undefined
+      const memoryTitle =
+        typeof metadata?.title === 'string' && metadata.title.trim() !== ''
+          ? (metadata.title as string).trim()
+          : undefined
       let canonicalData =
         !metadata?.memory_id && raw_text
           ? memoryIngestionService.canonicalizeContent(raw_text, baseUrl)
@@ -160,7 +167,7 @@ export const startContentWorker = () => {
           }
           const memoryCreateInput = memoryIngestionService.buildMemoryCreatePayload({
             userId: user_id,
-            title: metadata?.title as string | undefined,
+            title: memoryTitle,
             url: baseUrl,
             source: (metadata?.source as string | undefined) || undefined,
             content: raw_text,

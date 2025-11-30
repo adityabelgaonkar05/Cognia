@@ -230,11 +230,22 @@ export class MemoryIngestionService {
 
     const sanitizedContent = sanitizeContentForStorage(payload.content)
 
+    const url =
+      payload.url ||
+      (typeof metadata.url === 'string' && metadata.url.trim() !== ''
+        ? metadata.url.trim()
+        : 'unknown')
+    const title =
+      payload.title ||
+      (typeof metadata.title === 'string' && metadata.title.trim() !== ''
+        ? metadata.title.trim()
+        : 'Untitled')
+
     return {
       user: { connect: { id: payload.userId } },
       source: (metadata.source as string | undefined) || payload.source || 'extension',
-      url: payload.url || 'unknown',
-      title: payload.title || (typeof metadata.title === 'string' ? metadata.title : 'Untitled'),
+      url,
+      title,
       content: sanitizedContent,
       canonical_text: payload.canonicalText,
       canonical_hash: payload.canonicalHash,
