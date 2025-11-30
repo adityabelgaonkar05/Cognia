@@ -95,7 +95,6 @@ export const Memories: React.FC = () => {
                   onClick={() => {
                     setIsSpotlightOpen(true)
                     setSpotlightSearchQuery("")
-                    resetSpotlight()
                   }}
                   className="text-xs font-medium text-gray-700 hover:text-black px-2 py-1 border border-gray-300 hover:border-black hover:bg-black hover:text-white transition-all rounded-none"
                 >
