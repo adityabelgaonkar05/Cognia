@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for development and production
+# API Dockerfile (multi-stage)
 
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat openssl

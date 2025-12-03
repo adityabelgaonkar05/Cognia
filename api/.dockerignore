@@ -1,61 +1,43 @@
-# =============================================================================
-# Docker Ignore File
-# =============================================================================
-# Excludes unnecessary files from Docker build context
-# =============================================================================
-
-# Dependencies
 node_modules
 
-# Build output
 dist
 
-# Environment files (will be provided via Docker environment)
 .env
 .env.local
 .env.*.local
 
-# Logs
 logs
 *.log
 npm-debug.log*
 
-# IDE and editor files
 .idea
 .vscode
 *.swp
 *.swo
 *~
 
-# Git
 .git
 .gitignore
 
-# Docker files (avoid recursive copy)
 Dockerfile*
 docker-compose*.yml
 .dockerignore
 
-# Test files
 coverage
 *.test.ts
 *.spec.ts
 jest.config.*
 
-# Documentation
 *.md
 !README.md
 
-# OS files
 .DS_Store
 Thumbs.db
 
-# Temporary files
 tmp
 temp
 *.tmp
 
-# Development files
 .prettierignore
 .prettierrc.json
 .eslintrc.json
