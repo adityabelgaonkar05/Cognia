@@ -1,18 +1,8 @@
-# =============================================================================
-# Cognia Docker Compose Configuration
-# =============================================================================
-# Starts the complete Cognia stack: API, PostgreSQL, Qdrant, and Redis
-#
-# Usage:
-#   Development:  docker compose up
-#   Production:   docker compose --profile production up
-#   DB only:      docker compose up postgres qdrant redis
-# =============================================================================
+# Cognia Docker Compose - brings up api, postgres, qdrant, and redis
+# Use `docker compose up` for development, or `docker compose --profile production up` for prod
 
 services:
-  # ---------------------------------------------------------------------------
-  # API Service (Development)
-  # ---------------------------------------------------------------------------
+  # API (development)
   api:
     build:
       context: .
@@ -77,9 +67,7 @@ services:
     networks:
       - cognia_network
 
-  # ---------------------------------------------------------------------------
-  # API Service (Production)
-  # ---------------------------------------------------------------------------
+  # API (production profile)
   api-prod:
     build:
       context: .
@@ -142,9 +130,7 @@ services:
     networks:
       - cognia_network
 
-  # ---------------------------------------------------------------------------
-  # PostgreSQL Database
-  # ---------------------------------------------------------------------------
+  # PostgreSQL
   postgres:
     image: postgres:15
     container_name: cognia_db
@@ -168,9 +154,7 @@ services:
     networks:
       - cognia_network
 
-  # ---------------------------------------------------------------------------
-  # Qdrant Vector Database
-  # ---------------------------------------------------------------------------
+  # Qdrant
   qdrant:
     build:
       context: ./qdrant
@@ -194,12 +178,9 @@ services:
     networks:
       - cognia_network
 
-  # (removed) Previously had a one-off init service to chown Qdrant volume.
-  # Permission handling is now performed by `api/qdrant/entrypoint.sh`.
+  # Permission handling for Qdrant storage is performed by `api/qdrant/entrypoint.sh`.
 
-  # ---------------------------------------------------------------------------
-  # Redis Cache & Queue
-  # ---------------------------------------------------------------------------
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: cognia_redis
@@ -217,9 +198,7 @@ services:
     networks:
       - cognia_network
 
-# -----------------------------------------------------------------------------
 # Volumes
-# -----------------------------------------------------------------------------
 volumes:
   cognia_data:
     driver: local
@@ -228,9 +207,7 @@ volumes:
   cognia_redis_data:
     driver: local
 
-# -----------------------------------------------------------------------------
 # Networks
-# -----------------------------------------------------------------------------
 networks:
   cognia_network:
     driver: bridge
